@@ -32,6 +32,8 @@ void setup() {
   wm.setClass("invert");
   auto reboot = false;
   wm.setAPCallback([&reboot](WiFiManager *wifiManager){reboot = true;});
+  wm.setTimeout(60);  
+  wm.setConnectRetries(3);
   wm.autoConnect();
   if (reboot){
     ESP.restart();
