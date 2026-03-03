@@ -10,6 +10,7 @@ Config::Config()
     ,_serialBaudRate(115200)
     ,_serialConfig(SERIAL_8N1)
     ,_webPassword("")
+    ,_hostname(HOSTNAME)
 {}
 
 void Config::begin(Preferences *prefs)
@@ -23,6 +24,7 @@ void Config::begin(Preferences *prefs)
     _serialBaudRate = _prefs->getULong("serialBaudRate", _serialBaudRate);
     _serialConfig = _prefs->getULong("serialConfig", _serialConfig);
     _webPassword = _prefs->getString("webPassword", _webPassword);
+    _hostname = _prefs->getString("hostname", _hostname);
 }
 
 uint16_t Config::getTcpPort(){
@@ -167,4 +169,14 @@ void Config::setWebPassword(String value){
     if (webpass == value) return;
     _webPassword = value;
     _prefs->putString("webPassword", _webPassword);
+}
+
+String Config::getHostname(){
+    return _hostname;
+}
+
+void Config::setHostname(String value){
+    if (_hostname == value) return;
+    _hostname = value;
+    _prefs->putString("hostname", _hostname);
 }

@@ -3,8 +3,15 @@
     #include <Arduino.h>
     #include <Preferences.h>
     #define debugSerial Serial
-    #define modbusSerial Serial2
+    #ifndef MODBUS_SERIAL
+    #define MODBUS_SERIAL Serial2
+    #endif
+    #define modbusSerial MODBUS_SERIAL
     #define DEBUG
+
+    #ifndef HOSTNAME
+    #define HOSTNAME "modbus2wifi"
+    #endif
 
     class Config{
         private:
@@ -17,6 +24,7 @@
             unsigned long _serialBaudRate;
             uint32_t _serialConfig;
             String _webPassword;
+            String _hostname;
         public:
             Config();
             void begin(Preferences *prefs);
@@ -46,6 +54,8 @@
             void setSerialStopBits(uint8_t value);
             String getWebPassword();
             void setWebPassword(String value);
+            String getHostname();
+            void setHostname(String value);
     };
     #ifdef DEBUG
     #define dbg(x...) debugSerial.print(x);
