@@ -23,6 +23,7 @@ IPAddress local_IP;
 IPAddress subnet;
 IPAddress gateway;
 IPAddress primaryDNS;
+String hostname;
 String ipr;
 String sn;
 String gw;
@@ -33,29 +34,27 @@ void setup()
   debugSerial.begin(115200);
   dbgln();
 
-  dbgln("[config] load")
-      prefs.begin("modbusRtuGw");
+  dbgln("[config] load");
+  prefs.begin("modbusRtuGw");
   config.begin(&prefs);
   debugSerial.end();
   debugSerial.begin(config.getSerialBaudRate(), config.getSerialConfig());
 
   dbgln("[wifi] start");
   
-  String hostname = config.getHostname();
+  hostname = config.getHostname();
   ipr = config.getipAdr();
   sn = config.getSubnetAdr();
   gw = config.getGatewayAdr();
   dns = config.getDNSAdr();
 
-  if (ipr.length() > 0)
-    local_IP.fromString(ipr);
-  if (sn.length() > 0)
-    subnet.fromString(sn);
-  if (gw.length() > 0)
-    gateway.fromString(gw);
-  if (dns.length() > 0)
-    primaryDNS.fromString(dns);
+  local_IP.fromString(ipr);
+  subnet.fromString(sn);
+  gateway.fromString(gw);
+  primaryDNS.fromString(dns);
 
+  WiFi.mode(WIFI_STA);
+  WiFi.setHostname(hostname.c_str());
   if (ipr.length() > 0 && sn.length() > 0 && gw.length() > 0 && dns.length() > 0)
   {
     // Configures static IP address
@@ -65,8 +64,6 @@ void setup()
     }
   }
 
-  WiFi.mode(WIFI_STA);
-  WiFi.setHostname(hostname.c_str());
   wm.setClass("invert");
   wm.setHostname(hostname.c_str());
   auto reboot = false;
@@ -83,10 +80,6 @@ void setup()
   if (!MDNS.begin(hostname.c_str()))
   {
     Serial.println("Error setting up MDNS responder!");
-    while (1)
-    {
-      delay(1000);
-    }
   }
   dbgln("[wifi] finished");
 
