@@ -19,6 +19,14 @@ Preferences prefs;
 ModbusClientRTU *MBclient;
 ModbusBridgeWiFi MBbridge;
 WiFiManager wm;
+IPAddress local_IP;
+IPAddress subnet;
+IPAddress gateway;
+IPAddress primaryDNS;
+String ipr;
+String sn;
+String gw;
+String dns;
 
 void setup()
 {
@@ -32,8 +40,35 @@ void setup()
   debugSerial.begin(config.getSerialBaudRate(), config.getSerialConfig());
 
   dbgln("[wifi] start");
+  
+  String hostname = config.getHostname();
+  ipr = config.getipAdr();
+  sn = config.getSubnetAdr();
+  gw = config.getGatewayAdr();
+  dns = config.getDNSAdr();
+
+  if (ipr.length() > 0)
+    local_IP.fromString(ipr);
+  if (sn.length() > 0)
+    subnet.fromString(sn);
+  if (gw.length() > 0)
+    gateway.fromString(gw);
+  if (dns.length() > 0)
+    primaryDNS.fromString(dns);
+
+  if (ipr.length() > 0 && sn.length() > 0 && gw.length() > 0 && dns.length() > 0)
+  {
+    // Configures static IP address
+    if (!WiFi.config(local_IP, gateway, subnet, primaryDNS))
+    {
+      Serial.println("STA Failed to configure");
+    }
+  }
+
   WiFi.mode(WIFI_STA);
+  WiFi.setHostname(hostname.c_str());
   wm.setClass("invert");
+  wm.setHostname(hostname.c_str());
   auto reboot = false;
   wm.setAPCallback([&reboot](WiFiManager *wifiManager)
                    { reboot = true; });
@@ -45,8 +80,8 @@ void setup()
     ESP.restart();
   }
   // Initialize mDNS
-  if (!MDNS.begin(config.getHostname().c_str()))
-  { 
+  if (!MDNS.begin(hostname.c_str()))
+  {
     Serial.println("Error setting up MDNS responder!");
     while (1)
     {
@@ -64,7 +99,7 @@ void setup()
   dbgln("Use user defined RX/TX pins");
 #else
   // otherwise use default pins for hardware-serial2
-  modbusSerial.begin(config.getModbusBaudRate(), config.getModbusConfig());
+  modbusSerial.begin(config.getModbusBaudRate(), config.getModbusConfig(), config.getrxpin(), config.gettxpin());
 #endif
 
   MBclient = new ModbusClientRTU(config.getModbusRtsPin());

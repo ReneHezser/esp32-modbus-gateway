@@ -1,17 +1,24 @@
 #include "config.h"
 
 Config::Config()
-    :_prefs(NULL)
-    ,_tcpPort(502)
-    ,_tcpTimeout(10000)
-    ,_modbusBaudRate(9600)
-    ,_modbusConfig(SERIAL_8N1)
-    ,_modbusRtsPin(-1)
-    ,_serialBaudRate(115200)
-    ,_serialConfig(SERIAL_8N1)
-    ,_webPassword("")
-    ,_hostname(HOSTNAME)
-{}
+    : _prefs(NULL),
+      _tcpPort(502),
+      _tcpTimeout(10000),
+      _modbusBaudRate(9600),
+      _modbusConfig(SERIAL_8N1),
+      _modbusRtsPin(-1),
+      _serialBaudRate(115200),
+      _serialConfig(SERIAL_8N1),
+      _webPassword(""),
+      _hostname(HOSTNAME),
+      _txpin(17),
+      _rxpin(16),
+      _ipAdr(""),
+      _subnetAdr(""),
+      _gatewayAdr(""),
+      _DNSAdr("")
+{
+}
 
 void Config::begin(Preferences *prefs)
 {
@@ -25,6 +32,12 @@ void Config::begin(Preferences *prefs)
     _serialConfig = _prefs->getULong("serialConfig", _serialConfig);
     _webPassword = _prefs->getString("webPassword", _webPassword);
     _hostname = _prefs->getString("hostname", _hostname);
+    _txpin = _prefs->getUShort("txpin", _txpin);
+    _rxpin = _prefs->getUShort("rxpin", _rxpin);
+    _ipAdr = _prefs->getString("ipAdr", _ipAdr);
+    _subnetAdr = _prefs->getString("subnetAdr", _subnetAdr);
+    _gatewayAdr = _prefs->getString("gatewayAdr", _gatewayAdr);
+    _DNSAdr = _prefs->getString("DNSAdr", _DNSAdr);
 }
 
 uint16_t Config::getTcpPort(){
@@ -179,4 +192,86 @@ void Config::setHostname(String value){
     if (_hostname == value) return;
     _hostname = value;
     _prefs->putString("hostname", _hostname);
+}
+
+uint16_t Config::getrxpin()
+{
+    return _rxpin;
+}
+
+void Config::setrxpin(uint16_t value)
+{
+    if (_rxpin == value)
+        return;
+    _rxpin = value;
+    _prefs->putUShort("rxpin", _rxpin);
+}
+
+uint16_t Config::gettxpin()
+{
+    return _txpin;
+}
+
+void Config::settxpin(uint16_t value)
+{
+    if (_txpin == value)
+        return;
+    _txpin = value;
+    _prefs->putUShort("txpin", _txpin);
+}
+
+String Config::getipAdr()
+{
+    return _ipAdr;
+}
+
+void Config::setipAdr(String value)
+{
+    auto iptmp = getipAdr();
+    if (iptmp == value)
+        return;
+    _ipAdr = value;
+    _prefs->putString("ipAdr", _ipAdr);
+}
+
+String Config::getSubnetAdr()
+{
+    return _subnetAdr;
+}
+
+void Config::setSubnetAdr(String value)
+{
+    auto tmp = getSubnetAdr();
+    if (tmp == value)
+        return;
+    _subnetAdr = value;
+    _prefs->putString("subnetAdr", _subnetAdr);
+}
+
+String Config::getGatewayAdr()
+{
+    return _gatewayAdr;
+}
+
+void Config::setGatewayAdr(String value)
+{
+    auto tmp = getGatewayAdr();
+    if (tmp == value)
+        return;
+    _gatewayAdr = value;
+    _prefs->putString("gatewayAdr", _gatewayAdr);
+}
+
+String Config::getDNSAdr()
+{
+    return _DNSAdr;
+}
+
+void Config::setDNSAdr(String value)
+{
+    auto tmp = getDNSAdr();
+    if (tmp == value)
+        return;
+    _DNSAdr = value;
+    _prefs->putString("DNSAdr", _DNSAdr);
 }

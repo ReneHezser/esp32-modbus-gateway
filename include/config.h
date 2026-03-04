@@ -25,6 +25,12 @@
             uint32_t _serialConfig;
             String _webPassword;
             String _hostname;
+            int16_t _txpin;
+            int16_t _rxpin;
+            String _ipAdr;
+            String _subnetAdr;
+            String _gatewayAdr;
+            String _DNSAdr;
         public:
             Config();
             void begin(Preferences *prefs);
@@ -56,6 +62,18 @@
             void setWebPassword(String value);
             String getHostname();
             void setHostname(String value);
+            uint16_t gettxpin();
+            void settxpin(uint16_t value);
+            uint16_t getrxpin();
+            void setrxpin(uint16_t value);
+            String getipAdr();
+            void setipAdr(String value);
+            String getSubnetAdr();
+            void setSubnetAdr(String value);
+            String getGatewayAdr();
+            void setGatewayAdr(String value);
+            String getDNSAdr();
+            void setDNSAdr(String value);
     };
     #ifdef DEBUG
     #define dbg(x...) debugSerial.print(x);

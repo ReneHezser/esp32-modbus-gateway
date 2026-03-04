@@ -4,7 +4,7 @@
         if ((!config->getWebPassword().equals("")) && (!request->authenticate("admin", config->getWebPassword().c_str()))) \
             return request->requestAuthentication();
 #define WEB_PASS_PLACEHOLDER "****"
-
+String IP_PLACEHOLDER;
 
 void setupPages(AsyncWebServer *server, ModbusClientRTU *rtu, ModbusBridgeWiFi *bridge, Config *config, WiFiManager *wm){
   server->on("/", HTTP_GET, [config](AsyncWebServerRequest *request){
@@ -213,7 +213,71 @@ void setupPages(AsyncWebServer *server, ModbusClientRTU *rtu, ModbusBridgeWiFi *
         "</tr>"
         "</table>");
     
-    response->print(        "<h3>Other</h3>"
+    response->print(        "<h3>Pins</h3>"
+        "<table>"
+        "<tr>"
+          "<td>"
+            "<label for=\"tx\">TX PIN</label>"
+          "</td>"
+          "<td>");
+    response->printf("<input type=\"number\" min=\"1\" max=\"65535\" id=\"tx\" name=\"tx\" value=\"%d\">", config->gettxpin());
+    response->print("</td>"
+        "</tr>"
+        "<tr>"
+          "<td>"
+            "<label for=\"rx\">RX PIN</label>"
+          "</td>"
+          "<td>");
+    response->printf("<input type=\"number\" min=\"1\" id=\"rx\" name=\"rx\" value=\"%d\">", config->getrxpin());
+    response->print("</td>"
+        "</tr>"
+        "</table>");
+    response->print(        "<h3>Hostname / IP</h3>"
+        "<table>"
+         "<tr>"
+          "<td>"
+            "<label for=\"hostname\">Hostname</label>"
+          "</td>"
+          "<td>");
+    response->printf("<input type=\"string\" min=\"0\" id=\"hostname\" name=\"hostname\" value=\"%s\">", config->getHostname().c_str());
+    response->print("</td>"
+        "</tr>"
+        "<tr><td colspan=\"2\"><em>Leave IP field empty to use DHCP. Set all fields, for a static IP configuration.</em></td></tr>"
+        "<tr>"
+          "<td>"
+            "<label for=\"ipa\">IP adress</label>"
+          "</td>"
+          "<td>");
+    IP_PLACEHOLDER = config->getipAdr();
+    response->printf("<input type=\"string\" min=\"0\" id=\"ipa\" name=\"ipa\" value=\"%s\">", IP_PLACEHOLDER.c_str());
+    response->print("</td>"
+        "</tr>"
+        "<tr>"
+          "<td>"
+            "<label for=\"sn\">Subnet</label>"
+          "</td>"
+          "<td>");
+    response->printf("<input type=\"string\" min=\"0\" id=\"sn\" name=\"sn\" value=\"%s\">", config->getSubnetAdr().c_str());
+    response->print("</td>"
+        "</tr>"
+        "<tr>"
+          "<td>"
+            "<label for=\"gw\">Gateway</label>"
+          "</td>"
+          "<td>");
+    response->printf("<input type=\"string\" min=\"0\" id=\"gw\" name=\"gw\" value=\"%s\">", config->getGatewayAdr().c_str());
+    response->print("</td>"
+        "</tr>"
+        "<tr>"
+          "<td>"
+            "<label for=\"dns\">DNS</label>"
+          "</td>"
+          "<td>");
+    response->printf("<input type=\"string\" min=\"0\" id=\"dns\" name=\"dns\" value=\"%s\">", config->getDNSAdr().c_str());
+    response->print("</td>"
+        "</tr>"
+        "</table>"
+        "<h3>Other</h3>"
         "<table>"
         "<tr>"
           "<td>"
@@ -225,6 +289,7 @@ void setupPages(AsyncWebServer *server, ModbusClientRTU *rtu, ModbusBridgeWiFi *
         "</tr>"
         "</table>");
 
+    response->print("<p></p>");
     response->print("<button class=\"r\">Save</button>"
       "</form>"
       "<p></p>");
@@ -298,6 +363,45 @@ void setupPages(AsyncWebServer *server, ModbusClientRTU *rtu, ModbusBridgeWiFi *
       auto stop = request->getParam("ss", true)->value().toInt();
       config->setSerialStopBits(stop);
       dbgln("[webserver] saved serial stop bits");
+    }
+    if (request->hasParam("tx", true)){
+      auto pintx = request->getParam("tx", true)->value().toInt();
+      config->settxpin(pintx);
+      dbgln("[webserver] saved Pin TX");
+    }
+    if (request->hasParam("rx", true)){
+      auto pinrx = request->getParam("rx", true)->value().toInt();
+      config->setrxpin(pinrx);
+      dbgln("[webserver] saved Pin RX");
+    }
+    if (request->hasParam("hostname", true)){
+      String hostname = request->getParam("hostname", true)->value();
+      config->setHostname(hostname);
+      dbgln("[webserver] saved Hostname");
+    }
+    if (request->hasParam("ipa", true)){
+      String ipa = request->getParam("ipa", true)->value();
+      if (!ipa.equals(IP_PLACEHOLDER)) {
+        config->setipAdr(ipa);
+        dbgln("[webserver] saved IP Adress");
+      } else {
+        dbgln("[webserver] IP Adress not changed");
+      }
+    }
+    if (request->hasParam("sn", true)){
+      String sn = request->getParam("sn", true)->value();
+      config->setSubnetAdr(sn);
+      dbgln("[webserver] saved Subnet");
+    }
+    if (request->hasParam("gw", true)){
+      String gw = request->getParam("gw", true)->value();
+      config->setGatewayAdr(gw);
+      dbgln("[webserver] saved Gateway");
+    }
+    if (request->hasParam("dns", true)){
+      String dns = request->getParam("dns", true)->value();
+      config->setDNSAdr(dns);
+      dbgln("[webserver] saved DNS");
     }
     if (request->hasParam("wp", true)){
       String wp = request->getParam("wp", true)->value();
